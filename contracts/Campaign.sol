@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface ICampaignFactory {
@@ -9,31 +8,46 @@ interface ICampaignFactory {
 }
 
 contract Campaign is ReentrancyGuard {
+    // Campaign Data
     address public creator;
     uint256 public goal;
     uint256 public deadline;
     uint256 public raisedAmount;
     string public title;
+    string public description; // New: Campaign description
     ICampaignFactory public factory;
     
     mapping(address => uint256) public contributions;
+
+    // Comments System
+    struct Comment {
+        address commenter;
+        string text;
+        uint256 timestamp;
+    }
+    Comment[] public comments;
     
+    // Events
     event ContributionMade(address indexed contributor, uint256 amount);
     event GoalReached(uint256 totalRaised);
     event FundsWithdrawn(address indexed creator, uint256 amount);
+    event CampaignEnded(uint256 timestamp);
+    event CommentAdded(address indexed commenter, string text, uint256 timestamp);
 
     constructor(
         address _creator,
         uint256 _goal,
         uint256 _duration,
         address _factory,
-        string memory _title
+        string memory _title,
+        string memory _description
     ) {
         creator = _creator;
         goal = _goal;
         deadline = block.timestamp + _duration;
         factory = ICampaignFactory(_factory);
         title = _title;
+        description = _description;
     }
 
     function contribute() external payable nonReentrant {
@@ -49,14 +63,18 @@ contract Campaign is ReentrancyGuard {
         try factory.mintReward(msg.sender, rewardAmount) {
             // Success
         } catch {
-            // Minter role might not be set yet or other error
-            // We don't want to revert the donation if token reward fails
+            // Token minting failed, but don't revert donation
         }
 
         emit ContributionMade(msg.sender, msg.value);
         
+        // Auto-End if Goal Reached
         if (raisedAmount >= goal) {
+            // If strictly equal or greater, we might want to end it.
+            // Requirement said "end when it reaches 100%"
+            deadline = block.timestamp; 
             emit GoalReached(raisedAmount);
+            emit CampaignEnded(block.timestamp);
         }
     }
 
@@ -73,8 +91,25 @@ contract Campaign is ReentrancyGuard {
         emit FundsWithdrawn(creator, balance);
     }
 
+    function endCampaign() external {
+        require(msg.sender == creator, "Only creator can end");
+        require(block.timestamp < deadline, "Campaign already ended");
+        deadline = block.timestamp;
+        emit CampaignEnded(block.timestamp);
+    }
+
+    function addComment(string memory _text) external {
+        require(bytes(_text).length > 0, "Comment cannot be empty");
+        comments.push(Comment(msg.sender, _text, block.timestamp));
+        emit CommentAdded(msg.sender, _text, block.timestamp);
+    }
+
+    function getComments() external view returns (Comment[] memory) {
+        return comments;
+    }
+
     function getSummary() external view returns (
-        address, uint256, uint256, uint256, uint256, string memory
+        address, uint256, uint256, uint256, uint256, string memory, string memory
     ) {
         return (
             creator,
@@ -82,7 +117,8 @@ contract Campaign is ReentrancyGuard {
             raisedAmount,
             deadline,
             address(this).balance,
-            title
+            title,
+            description
         );
     }
 

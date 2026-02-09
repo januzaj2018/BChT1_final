@@ -16,8 +16,8 @@ contract CampaignFactory is Ownable {
         token = new GreenToken();
     }
 
-    function createCampaign(uint256 _goal, uint256 _duration, string memory _title) external {
-        Campaign newCampaign = new Campaign(msg.sender, _goal, _duration, address(this), _title);
+    function createCampaign(uint256 _goal, uint256 _duration, string memory _title, string memory _description) external {
+        Campaign newCampaign = new Campaign(msg.sender, _goal, _duration, address(this), _title, _description);
         campaigns.push(newCampaign);
         isCampaign[address(newCampaign)] = true;
         emit CampaignCreated(address(newCampaign), msg.sender, _goal, _title);

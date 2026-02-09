@@ -1,60 +1,98 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Web3Context } from "../context/Web3Context";
 
 const Navbar = () => {
-  const { account, connectWallet, networkName } = useContext(Web3Context);
+  const { account, connectWallet, networkName, ethBalance, tokenBalance } =
+    useContext(Web3Context);
+  const location = useLocation();
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-eco-green">
-              GreenPulse
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <span className="text-lg font-semibold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
+                GreenPulse
+              </span>
             </Link>
-            <div className="hidden md:flex ml-10 space-x-8">
-              <Link
-                to="/"
-                className="text-gray-700 hover:text-eco-dark px-3 py-2 rounded-md font-medium"
-              >
-                Campaigns
-              </Link>
-              <Link
-                to="/create"
-                className="text-gray-700 hover:text-eco-dark px-3 py-2 rounded-md font-medium"
-              >
-                Start Campaign
-              </Link>
-              <Link
-                to="/profile"
-                className="text-gray-700 hover:text-eco-dark px-3 py-2 rounded-md font-medium"
-              >
-                My Profile
-              </Link>
+
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center ml-10 space-x-1">
+              <NavLink to="/" active={location.pathname === "/"}>
+                Overview
+              </NavLink>
+              <NavLink to="/create" active={location.pathname === "/create"}>
+                Launch
+              </NavLink>
+              <NavLink to="/profile" active={location.pathname === "/profile"}>
+                Portfolio
+              </NavLink>
             </div>
           </div>
-          <div className="flex items-center">
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-4">
             {account ? (
-              <div className="flex items-center space-x-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                    networkName === "Localhost" || networkName === "Sepolia"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {networkName || "Wrong Network"}
-                </span>
-                <span className="bg-eco-light text-eco-dark px-4 py-2 rounded-full font-mono text-sm">
-                  {account.slice(0, 6)}...{account.slice(-4)}
-                </span>
-              </div>
+              <>
+                {/* Network Indicator */}
+                <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-800 rounded-md border border-slate-700">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      networkName === "Localhost" || networkName === "Sepolia"
+                        ? "bg-emerald-500"
+                        : "bg-red-500"
+                    }`}
+                  ></div>
+                  <span className="text-xs font-medium text-slate-300">
+                    {networkName || "Wrong Network"}
+                  </span>
+                </div>
+
+                {/* Balances */}
+                <div className="hidden lg:flex flex-col items-end mr-2">
+                  <span className="text-xs font-medium text-slate-400">
+                    Balance
+                  </span>
+                  <div className="flex gap-3 text-sm">
+                    <span className="text-white font-medium">
+                      {Number(ethBalance).toFixed(4)} ETH
+                    </span>
+                    <span className="text-emerald-500 font-medium">
+                      {Number(tokenBalance).toFixed(0)} LEAF
+                    </span>
+                  </div>
+                </div>
+
+                {/* Account */}
+                <div className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 transition-colors px-3 py-1.5 rounded-md border border-slate-700 cursor-default">
+                  <div className="w-5 h-5 bg-gradient-to-tr from-emerald-500 to-cyan-500 rounded-full"></div>
+                  <span className="text-sm font-mono text-slate-200">
+                    {account.slice(0, 6)}...{account.slice(-4)}
+                  </span>
+                </div>
+              </>
             ) : (
               <button
                 onClick={connectWallet}
-                className="bg-eco-green text-white px-4 py-2 rounded-md font-medium hover:bg-eco-dark transition-colors"
-                id="connect-wallet-btn"
+                className="bg-white text-slate-900 hover:bg-slate-200 px-4 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Connect Wallet
               </button>
@@ -65,5 +103,18 @@ const Navbar = () => {
     </nav>
   );
 };
+
+const NavLink = ({ to, children, active }) => (
+  <Link
+    to={to}
+    className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+      active
+        ? "text-white bg-slate-800"
+        : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+    }`}
+  >
+    {children}
+  </Link>
+);
 
 export default Navbar;
