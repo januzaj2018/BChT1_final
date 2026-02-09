@@ -54,6 +54,8 @@ contract Campaign is ReentrancyGuard {
         require(block.timestamp < deadline, "Campaign has ended");
         require(msg.value > 0, "Contribution must be greater than 0");
 
+        // GAS OPTIMIZATION: Using a mapping for contributions is O(1) gas cost for lookups and updates,
+        // which is much cheaper than iterating through an array of contributors.
         contributions[msg.sender] += msg.value;
         raisedAmount += msg.value;
 
@@ -108,6 +110,9 @@ contract Campaign is ReentrancyGuard {
         return comments;
     }
 
+    // GAS OPTIMIZATION: This function is 'external view'.
+    // It reads state variables but does not modify them, so it costs 0 gas when called externally (e.g. from the frontend).
+    // It returns multiple values in a single call to reduce the number of RPC requests required by the client.
     function getSummary() external view returns (
         address, uint256, uint256, uint256, uint256, string memory, string memory
     ) {
