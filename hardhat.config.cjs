@@ -25,4 +25,10 @@ module.exports = {
   paths: {
     artifacts: "./frontend/src/assets/artifacts",
   },
+  gasReporter: {
+    enabled: true,
+    currency: "USD",
+    outputFile: "gas-report.txt",
+    noColors: true,
+  },
 };
