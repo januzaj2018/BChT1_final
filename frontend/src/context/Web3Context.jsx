@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 import CampaignFactoryArtifact from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
@@ -86,7 +87,7 @@ export const Web3Provider = ({ children }) => {
       }
 
       const _provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await window.ethereum.request({
+      await window.ethereum.request({
         method: "eth_requestAccounts",
       });
 
@@ -145,12 +146,16 @@ export const Web3Provider = ({ children }) => {
   }, [initContracts]);
 
   useEffect(() => {
-    checkIfWalletIsConnected();
+    void (async () => {
+      await checkIfWalletIsConnected();
+    })();
   }, [checkIfWalletIsConnected]);
 
   useEffect(() => {
     if (account && provider && factoryContract) {
-      fetchBalances(provider, account, factoryContract);
+      void (async () => {
+        await fetchBalances(provider, account, factoryContract);
+      })();
     }
   }, [account, provider, factoryContract, fetchBalances]);
 

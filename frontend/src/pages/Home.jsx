@@ -5,7 +5,7 @@ import CampaignCard from "../components/CampaignCard";
 
 // Safe time hook
 const useNow = () => {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000); // Update every second
     return () => clearInterval(timer);

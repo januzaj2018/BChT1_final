@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 
 // Self-contained time hook
 const useTime = () => {
-  const [time, setTime] = useState(Date.now());
+  const [time, setTime] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setTime(Date.now()), 1000);
     return () => clearInterval(timer);

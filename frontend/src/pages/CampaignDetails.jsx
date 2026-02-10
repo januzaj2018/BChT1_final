@@ -4,7 +4,7 @@ import { Web3Context } from "../context/Web3Context";
 import { ethers } from "ethers";
 
 const useTime = () => {
-  const [time, setTime] = useState(Date.now());
+  const [time, setTime] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setTime(Date.now()), 1000);
     return () => clearInterval(timer);
@@ -56,7 +56,9 @@ const CampaignDetails = () => {
 
   useEffect(() => {
     if (provider && address) {
-      fetchCampaignData();
+      void (async () => {
+        await fetchCampaignData();
+      })();
     }
   }, [fetchCampaignData, provider, address]);
 
