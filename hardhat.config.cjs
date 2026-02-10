@@ -23,6 +23,6 @@ module.exports = {
     },
   },
   paths: {
-    artifacts: "./frontend/src/artifacts",
+    artifacts: "./frontend/src/assets/artifacts",
   },
 };

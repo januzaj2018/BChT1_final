@@ -1,0 +1,206 @@
+<div
+  *ngIf="loading()"
+  class="flex justify-center items-center h-64 border border-slate-800 rounded-lg"
+>
+  <div class="w-8 h-8 border-2 border-slate-700 border-t-white rounded-full animate-spin"></div>
+</div>
+
+<div
+  *ngIf="!loading() && !campaignData()"
+  class="text-center py-12 bg-slate-900 border border-slate-800 rounded-lg"
+>
+  <p class="text-slate-400 font-medium">Campaign not found.</p>
+</div>
+
+<div *ngIf="!loading() && campaignData()" class="max-w-6xl mx-auto space-y-6 py-6 font-sans">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Main Info -->
+    <div class="lg:col-span-2 bg-slate-900 rounded-lg border border-slate-800 p-6 shadow-sm">
+      <div class="flex items-center gap-3 mb-4">
+        <h1 class="text-2xl font-bold text-white tracking-tight leading-snug">
+          {{ campaignData().title }}
+        </h1>
+        <span
+          [class]="
+            'px-2 py-0.5 rounded text-xs font-medium border ' +
+            (isExpired()
+              ? 'bg-slate-800 text-slate-400 border-slate-700'
+              : 'bg-emerald-900/10 text-emerald-500 border-emerald-900/20')
+          "
+        >
+          {{ isExpired() ? 'Closed' : 'Active' }}
+        </span>
+      </div>
+
+      <p class="text-slate-300 text-sm leading-relaxed mb-6 whitespace-pre-wrap">
+        {{ campaignData().description || 'No description provided.' }}
+      </p>
+
+      <div
+        class="flex items-center gap-4 text-xs font-mono text-slate-500 mb-6 bg-slate-950 p-3 rounded border border-slate-800"
+      >
+        <span class="text-slate-400">Project ID:</span>
+        <span class="text-slate-300 break-all">{{ campaignData().address }}</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-3 gap-4 border-t border-slate-800 pt-6">
+        <div>
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-medium mb-1">Raised</p>
+          <p class="text-xl font-semibold text-white">
+            {{ formattedRaised() }} <span class="text-sm font-normal text-slate-500">ETH</span>
+          </p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-medium mb-1">Target</p>
+          <p class="text-xl font-semibold text-slate-300">
+            {{ formattedGoal() }} <span class="text-sm font-normal text-slate-500">ETH</span>
+          </p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wider text-slate-500 font-medium mb-1">Timeline</p>
+          <p class="text-xl font-semibold text-slate-300">
+            {{ timeLeft().days }}d
+            <span class="text-sm font-normal text-slate-500">{{ timeLeft().hours }}h</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="flex justify-between text-xs text-slate-400 mb-2">
+          <span>Progress</span>
+          <span>{{ progress() | number : '1.1-1' }}%</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+          <div
+            class="bg-emerald-600 h-full rounded-full transition-all duration-500"
+            [style.width.%]="progress() > 100 ? 100 : progress()"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Creator Actions -->
+      <div *ngIf="isCreator() && !isExpired()" class="mt-8 pt-6 border-t border-slate-800">
+        <button
+          (click)="handleEndCampaign()"
+          [disabled]="endLoading()"
+          class="px-4 py-2 bg-red-900/20 border border-red-500/30 text-red-500 rounded-md text-sm font-medium hover:bg-red-900/30 transition-all disabled:opacity-50"
+        >
+          {{ endLoading() ? 'Ending...' : 'Close Campaign Manually' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Contribution Panel -->
+    <div class="lg:col-span-1 bg-slate-900 rounded-lg border border-slate-800 p-6 shadow-sm h-fit">
+      <h3
+        class="text-sm font-semibold text-white uppercase tracking-wider mb-6 border-b border-slate-800 pb-2"
+      >
+        Contribute Funds
+      </h3>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wide"
+            >Amount</label
+          >
+          <div class="relative">
+            <input
+              type="number"
+              step="0.01"
+              [(ngModel)]="amount"
+              placeholder="0.00"
+              class="w-full bg-slate-950 border border-slate-700 rounded-md py-2.5 px-3 text-white text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 shadow-inner"
+            />
+            <div
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500"
+            >
+              ETH
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/50 rounded-md p-3 border border-slate-700/50">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-400">Estimated Reward</span>
+            <span class="font-mono text-emerald-400 font-medium">
+              {{ (amount ? +amount * 100 : 0) | number : '1.0-0' }} LEAF
+            </span>
+          </div>
+        </div>
+
+        <button
+          (click)="handleContribute()"
+          [disabled]="contributeLoading() || isExpired()"
+          class="w-full py-2.5 rounded-md font-medium text-sm text-white transition-colors border border-transparent shadow-sm disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 disabled:border-slate-700 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700"
+        >
+          {{
+            contributeLoading()
+              ? 'Processing...'
+              : isExpired()
+              ? 'Campaign Closed'
+              : 'Confirm Contribution'
+          }}
+        </button>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
+          Secured by Ethereum
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discussion -->
+  <div class="bg-slate-900 rounded-lg border border-slate-800 p-6">
+    <h3 class="text-lg font-semibold text-white mb-6">Discussion</h3>
+
+    <div class="mb-8">
+      <div class="flex gap-4">
+        <div class="flex-1">
+          <textarea
+            [(ngModel)]="commentText"
+            placeholder="Ask a question or leave a comment..."
+            rows="2"
+            class="w-full bg-slate-950 border border-slate-700 rounded-md py-2 px-3 text-white text-sm focus:outline-none focus:border-emerald-500 transition-all resize-none"
+          ></textarea>
+        </div>
+        <button
+          (click)="handlePostComment()"
+          [disabled]="commentLoading() || !commentText.trim()"
+          class="px-4 py-2 h-fit bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-md border border-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ commentLoading() ? 'Posting...' : 'Post' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <p *ngIf="comments().length === 0" class="text-slate-500 text-sm italic">
+        No comments yet. Be the first to start the conversation.
+      </p>
+
+      <div *ngFor="let comment of comments()" class="flex gap-3 group">
+        <div
+          class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-xs text-slate-400 font-mono border border-slate-700"
+        >
+          {{ comment.commenter.slice(2, 4) }}
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2 mb-1">
+            <span
+              class="text-xs font-mono text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800"
+            >
+              {{ comment.commenter.slice(0, 6) }}...{{ comment.commenter.slice(-4) }}
+            </span>
+            <span class="text-[10px] text-slate-600">
+              {{ comment.timestamp * 1000 | date : 'medium' }}
+            </span>
+          </div>
+          <p class="text-slate-300 text-sm">{{ comment.text }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
