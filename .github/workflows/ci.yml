@@ -50,6 +50,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Install Root Dependencies (Hardhat)
+        run: npm ci
+
+      - name: Compile Smart Contracts
+        run: npx hardhat compile
+
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci
