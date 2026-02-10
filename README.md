@@ -112,7 +112,7 @@ When running `npx hardhat node`, Hardhat automatically gives you 20 accounts wit
 2.  Add Network -> "Add a network manually":
     - **Name**: Localhost 8545
     - **RPC URL**: `http://127.0.0.1:8545`
-    - **Chain ID**: `31337` (or `1337`)
+    - **Chain ID**: `1337`
     - **Currency Symbol**: ETH
 3.  Import Account -> Paste the Private Key you copied in Step 1.
 
