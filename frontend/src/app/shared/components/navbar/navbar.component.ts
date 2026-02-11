@@ -14,6 +14,7 @@ export class NavbarComponent {
   web3Service = inject(Web3Service);
 
   account = this.web3Service.account;
+  tokenBalance = this.web3Service.tokenBalance;
 
   connect() {
     this.web3Service.connectWallet();

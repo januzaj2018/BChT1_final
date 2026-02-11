@@ -19,20 +19,11 @@ contract Campaign is ReentrancyGuard {
     
     mapping(address => uint256) public contributions;
 
-    // Comments System
-    struct Comment {
-        address commenter;
-        string text;
-        uint256 timestamp;
-    }
-    Comment[] public comments;
-    
     // Events
     event ContributionMade(address indexed contributor, uint256 amount);
     event GoalReached(uint256 totalRaised);
     event FundsWithdrawn(address indexed creator, uint256 amount);
     event CampaignEnded(uint256 timestamp);
-    event CommentAdded(address indexed commenter, string text, uint256 timestamp);
 
     constructor(
         address _creator,
@@ -100,15 +91,6 @@ contract Campaign is ReentrancyGuard {
         emit CampaignEnded(block.timestamp);
     }
 
-    function addComment(string memory _text) external {
-        require(bytes(_text).length > 0, "Comment cannot be empty");
-        comments.push(Comment(msg.sender, _text, block.timestamp));
-        emit CommentAdded(msg.sender, _text, block.timestamp);
-    }
-
-    function getComments() external view returns (Comment[] memory) {
-        return comments;
-    }
 
     // GAS OPTIMIZATION: This function is 'external view'.
     // It reads state variables but does not modify them, so it costs 0 gas when called externally (e.g. from the frontend).

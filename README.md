@@ -38,7 +38,6 @@ The system is built as a **Decentralized Application (DApp)** with three main la
 
 - **Campaign (`contracts/Campaign.sol`)**:
   - `contribute`: Accepts ETH, mints **100 LEAF per 1 ETH**, and auto-closes if the goal is reached.
-  - `addComment`: Enables decentralized discussion for each project.
   - `withdraw`: Creator can claim funds ONLY if the goal is met.
   - `refund`: Enables contributors to reclaim ETH if the campaign fails after the deadline.
 

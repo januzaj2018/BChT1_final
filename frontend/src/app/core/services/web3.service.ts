@@ -162,14 +162,13 @@ export class Web3Service {
     await tx.wait();
   }
 
-  async getCampaignDetails(address: string): Promise<{ summary: any; comments: any[] } | null> {
+  async getCampaignDetails(address: string): Promise<{ summary: any } | null> {
     const provider = this.provider();
     if (!provider) return null;
 
     try {
       const contract = new ethers.Contract(address, CampaignArtifact.abi, provider);
       const summary = await contract['getSummary']();
-      const comments = await contract['getComments']();
 
       return {
         summary: {
@@ -182,7 +181,6 @@ export class Web3Service {
           title: summary[5],
           description: summary[6],
         },
-        comments,
       };
     } catch (e) {
       console.error('Error fetching campaign details', e);
@@ -211,17 +209,6 @@ export class Web3Service {
     const contract = new ethers.Contract(address, CampaignArtifact.abi, signer);
 
     const tx = await contract['endCampaign']();
-    await tx.wait();
-  }
-
-  async addComment(address: string, text: string): Promise<void> {
-    const provider = this.provider();
-    if (!provider) throw new Error('Wallet not connected');
-
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(address, CampaignArtifact.abi, signer);
-
-    const tx = await contract['addComment'](text);
     await tx.wait();
   }
 }

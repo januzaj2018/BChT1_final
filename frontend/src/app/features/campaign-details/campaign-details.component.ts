@@ -17,15 +17,11 @@ export class CampaignDetailsComponent implements OnInit {
   web3Service = inject(Web3Service);
 
   campaignData = signal<any>(null);
-  comments = signal<any[]>([]);
-
   amount = '';
-  commentText = '';
 
   loading = signal(false);
   contributeLoading = signal(false);
   endLoading = signal(false);
-  commentLoading = signal(false);
 
   now = signal(Date.now());
 
@@ -88,7 +84,6 @@ export class CampaignDetailsComponent implements OnInit {
     const data = await this.web3Service.getCampaignDetails(address);
     if (data) {
       this.campaignData.set(data.summary);
-      this.comments.set(data.comments);
     }
     this.loading.set(false);
   }
@@ -123,23 +118,6 @@ export class CampaignDetailsComponent implements OnInit {
       alert('Failed: ' + (e.reason || e.message));
     } finally {
       this.endLoading.set(false);
-    }
-  }
-
-  async handlePostComment() {
-    if (!this.web3Service.account()) return alert('Connect wallet first');
-    if (!this.commentText.trim()) return;
-
-    this.commentLoading.set(true);
-    try {
-      await this.web3Service.addComment(this.campaignData().address, this.commentText);
-      this.commentText = '';
-      this.loadData(this.campaignData().address);
-    } catch (e: any) {
-      console.error(e);
-      alert('Failed: ' + (e.reason || e.message));
-    } finally {
-      this.commentLoading.set(false);
     }
   }
 }

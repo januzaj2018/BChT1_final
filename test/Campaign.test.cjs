@@ -80,25 +80,4 @@ describe("Campaign Contract", function () {
 
     expect(summary[3]).to.equal(latestBlock.timestamp);
   });
-
-  it("Should allow comments", async function () {
-    await factory.createCampaign(
-      ethers.parseEther("1"),
-      86400,
-      "Comment Test",
-      "Desc",
-    );
-    const campaigns = await factory.getDeployedCampaigns();
-    const campaign = await ethers.getContractAt("Campaign", campaigns[0]);
-
-    const commentText = "Great project!";
-    await campaign.connect(addr1).addComment(commentText);
-
-    // Structs in arrays are expensive to read on-chain but fine for view functions (off-chain reading).
-    // The getComments() function is 'view' so it costs 0 gas to call from frontend.
-    const comments = await campaign.getComments();
-    expect(comments.length).to.equal(1);
-    expect(comments[0].text).to.equal(commentText);
-    expect(comments[0].commenter).to.equal(addr1.address);
-  });
 });

@@ -42,9 +42,15 @@
     <div class="relative flex w-full gap-2 md:w-max">
       <button
         (click)="connect()"
-        class="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-2 px-4 rounded-lg bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none"
+        class="flex items-center gap-1.5 align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-2 px-4 rounded-lg bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none"
         type="button"
       >
+        <span
+          *ngIf="account()"
+          class="text-white/90 font-mono text-[10px] bg-white/10 px-2 py-0.5 rounded border border-white/20 mr-1"
+        >
+          {{ tokenBalance() | number : '1.0-2' }} LEAF
+        </span>
         {{ account() ? shortenAddress(account()) : 'Connect Wallet' }}
       </button>
     </div>
