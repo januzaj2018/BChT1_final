@@ -19,5 +19,6 @@ ignition/deployments/chain-31337
 # Report
 /report/*.svg
 /report/*.png
-/report/*.typ 
+/report/*.typ
 /report/references.yml
+/report/*.html
